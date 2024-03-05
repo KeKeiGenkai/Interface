@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мой API</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    p {
+      text-align: center;
+    }
+    .button-container {
+      margin-top: 30px;
+      text-align: center;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 15px 0;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>DataTuch API</h1>
+  <p>Выберите действие:</p>
+  <button onclick="sendRequest('data')">1. Парсинг TG даты</button>
+  <button onclick="sendRequest('textFromUser')">2. *количество отправленных сообщений каждым пользователем*</button>
+  <button onclick="sendRequest('mostYear')">3. Статистика</button>
+  <button onclick="sendRequest('averageCharsPerMessage')">4. Средняя длинна сообщения</button>
+  <button onclick="sendRequest('messagesWithTextCounts')">5. Количество мусора</button>
+  <button onclick="sendRequest('clearDatabase')">6. Сброс данных</button>
+  <button onclick="sendRequest('')">7. Путь к json</button>
+  <button onclick="sendRequest('cleanup')">8. Выход</button>
+  <div id="response"></div>
+</div>
+
+<script>
+  function sendRequest(method) {
+    var xhr = new XMLHttpRequest();
+    var url = 'http://localhost:8080'; // Замените на ваш URL и порт
+
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState == XMLHttpRequest.DONE) {
+        if (xhr.status == 200) {
+          document.getElementById("response").innerHTML = xhr.responseText;
+        } else {
+          document.getElementById("response").innerHTML = "Ошибка: " + xhr.status;
+        }
+      }
+    };
+
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    // Опционально: можно отправить дополнительные данные в теле запроса
+    var data = { method: method };
+    xhr.send(JSON.stringify(data));
+  }
+</script>
+
+</body>
+</html>
