@@ -12,6 +12,7 @@
       padding: 0;
     }
     .container {
+      text-align: center;
       max-width: 800px;
       margin: 50px auto;
       background-color: #fff;
@@ -43,27 +44,46 @@
     button:hover {
       background-color: #0056b3;
     }
+
+
+    button, input[type="file"] {
+      margin: 5px;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover, input[type="file"]:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
 <div class="container">
   <h1>DataTuch API</h1>
   <p>Выберите действие:</p>
+  <input type="file" id="fileInput" onchange="sendJsonFile()">
   <button onclick="sendRequest('data')">1. Парсинг TG даты</button>
   <button onclick="sendRequest('textFromUser')">2. *количество отправленных сообщений каждым пользователем*</button>
   <button onclick="sendRequest('mostYear')">3. Статистика</button>
   <button onclick="sendRequest('averageCharsPerMessage')">4. Средняя длинна сообщения</button>
   <button onclick="sendRequest('messagesWithTextCounts')">5. Количество мусора</button>
   <button onclick="sendRequest('clearDatabase')">6. Сброс данных</button>
-  <button onclick="sendRequest('')">7. Путь к json</button>
-  <button onclick="sendRequest('cleanup')">8. Выход</button>
+  <button onclick="sendRequest('cleanup')">7. Выход</button>
   <div id="response"></div>
 </div>
 
 <script>
-  function sendRequest(method) {
+  function sendJsonFile() {
+    var fileInput = document.getElementById('fileInput');
+    var file = fileInput.files[0];
+    var formData = new FormData();
+    formData.append('file', file);
+
     var xhr = new XMLHttpRequest();
-    var url = 'http://localhost:8080'; // Замените на ваш URL и порт
+    var url = 'http://localhost:8080/upload'; // Замените на ваш URL для загрузки файла
 
     xhr.onreadystatechange = function() {
       if (xhr.readyState == XMLHttpRequest.DONE) {
@@ -76,11 +96,7 @@
     };
 
     xhr.open("POST", url, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-
-    // Опционально: можно отправить дополнительные данные в теле запроса
-    var data = { method: method };
-    xhr.send(JSON.stringify(data));
+    xhr.send(formData);
   }
 </script>
 
