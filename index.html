@@ -98,6 +98,27 @@
     xhr.open("POST", url, true);
     xhr.send(formData);
   }
+
+  function sendRequest(action) {
+    var xhr = new XMLHttpRequest();
+    var url = 'http://localhost:8080/' + action;
+
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState == XMLHttpRequest.DONE) {
+        if (xhr.status == 200) {
+          document.getElementById("response").innerHTML = xhr.responseText;
+        } else {
+          document.getElementById("response").innerHTML = "Ошибка: " + xhr.status;
+        }
+      }
+    };
+
+    xhr.open("POST", url, true);
+    xhr.send();
+  }
+</script>
+</body>
+</html>
 </script>
 
 </body>
