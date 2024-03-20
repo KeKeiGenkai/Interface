@@ -1,82 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Мой API</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #3e3e3e;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      text-align: center;
-      max-width: 800px;
-      margin: 50px auto;
-      background-color: #545454;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    h1 {
-      text-align: center;
-      color: #f8f8f8;
-    }
-    p {
-      text-align: center;
-      color: #f8f8f8;
-    }
-    .button-container {
-      margin-top: 30px;
-      text-align: center;
-    }
-    button {
-      display: block;
-      width: 100%;
-      padding: 15px 0;
-      background-color: #808080; /* Серый цвет кнопки */
-      color: #000000; /* Черный цвет текста */
-      border: 1px solid #000000; /* Черная обводка */
-      border-radius: 105px;
-      cursor: pointer;
-      margin-bottom: 10px;
-    }
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой API</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #3e3e3e;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        text-align: center;
+        max-width: 800px;
+        margin: 50px auto;
+        background-color: #545454;
+        padding: 20px;
+        border-radius: 40px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        height: 40vh;
+      }
+      h1 {
+        text-align: center;
+        color: #f8f8f8;
+      }
+      p {
+        text-align: center;
+        color: #f8f8f8;
+      }
+      .button-container {
+        margin-top: 30px;
+        text-align: center;
+      }
+      button {
+        display: block;
+        width: 100%;
+        padding: 15px 0;
+        background-color: #808080;
+        color: #000000;
+        border: 1px solid #000000;
+        border-radius: 105px;
+        cursor: pointer;
+        margin-bottom: 10px;
+      }
 
-    button:hover {
-      background-color: #A9A9A9; /* Светло-серый цвет кнопки при наведении */
-    }
+      button:hover {
+        background-color: #A9A9A9;
+      }
 
+      input[type="file"] {
+        margin: 5px;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 105px;
+        cursor: pointer;
+      }
+      input, input[type="file"]:hover {
+        background-color: #0056b3;
+      }
 
-    input[type="file"] {
-      margin: 5px;
-      padding: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 105px;
-      cursor: pointer;
-    }
-    input, input[type="file"]:hover {
-      background-color: #0056b3;
-    }
-  </style>
-</head>
-<body>
-<div class="container">
-  <h1>DataTuch API</h1>
-  <p>Выберите действие:</p>
-  <input type="file" id="fileInput" onchange="sendJsonFile()">
-  <button onclick="sendRequest('clearDatabase')">Сброс данных</button>
-  <button onclick="sendRequest('cleanup')">Выход</button>
-  <button onclick="sendRequest('getData')">Гет</button>
-  <div id="response"></div>
-</div>
+      canvas {
+        height: 10%;
+      }
+    </style>
+  </head>
+  <body>
+  <div class="container">
+    <h1>DataTuch API</h1>
+    <p>Выберите действие:</p>
+    <input type="file" id="fileInput" onchange="sendJsonFile()">
+    <button onclick="sendRequest('clearDatabase')">Сброс данных</button>
+    <button onclick="sendRequest('cleanup')">Выход</button>
+    <button onclick="sendRequest('getData')">Гет</button>
+    <div id="response"></div>
+  </div>
 
-
-
-<script>
+  <script>
   function sendJsonFile() {
     var fileInput = document.getElementById('fileInput');
     var file = fileInput.files[0];
@@ -84,7 +87,7 @@
     formData.append('file', file);
 
     var xhr = new XMLHttpRequest();
-    var url = 'http://localhost:8080/upload'; // Замените на ваш URL для загрузки файла
+    var url = 'http://localhost:8080/upload';
 
     xhr.onreadystatechange = function() {
       if (xhr.readyState == XMLHttpRequest.DONE) {
@@ -100,56 +103,69 @@
     xhr.send(formData);
   }
 
-  function sendRequest(action) {
-    var xhr = new XMLHttpRequest();
-    var url = 'http://localhost:8080/' + action;
+  var mostYearChart = null;
 
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState == XMLHttpRequest.DONE) {
-        if (xhr.status == 200) {
-          document.getElementById("response").innerHTML = xhr.responseText;
-        } else {
-          document.getElementById("response").innerHTML = "Ошибка: " + xhr.status;
-        }
-      }
-    };
-
-    xhr.open("POST", url, true);
-    xhr.send();
+function drawMostYearChart(data) {
+  if (mostYearChart) {
+    mostYearChart.destroy();
   }
 
-  function drawMostYearChart(data) {
-  var labels = Object.keys(data.mostyear);
-  var values = Object.values(data.mostyear);
+  var mostYearData = data.mostyear.mostyear;
+  var labels = Object.keys(mostYearData);
+  var values = Object.values(mostYearData);
 
   var ctx = document.getElementById('mostYearChart').getContext('2d');
-  var mostYearChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-          labels: labels,
-          datasets: [{
-              label: 'Most Year',
-              data: values,
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1
-          }]
-      },
-      options: {
-          scales: {
-              y: {
-                  beginAtZero: true
-              }
-          }
+
+  var options = {
+    layout: {
+      padding: {
+        left: 10,
+        right: 10,
+        top: 10,
+        bottom: 10
       }
+    },
+    scales: {
+      x: {
+        ticks: {
+          font: {
+            size: 14
+          }
+        }
+      },
+      y: {
+        ticks: {
+          font: {
+            size: 14
+          }
+        }
+      }
+    }
+  };
+
+  mostYearChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Most Year',
+        data: values,
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: options
   });
 }
+
 
 function drawTextUsersChart(data) {
   var labels = Object.keys(data.textusers);
   var values = Object.values(data.textusers);
 
   var ctx = document.getElementById('textUsersChart').getContext('2d');
+
   var textUsersChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -264,23 +280,20 @@ function sendRequest(action) {
 
 </script>
 <div>
-  <canvas id="mostYearChart" width="400" height="400"></canvas>
+  <canvas id="mostYearChart"></canvas>
 </div>
 
 <div>
-  <canvas id="textUsersChart" width="400" height="400"></canvas>
+  <canvas id="textUsersChart"></canvas>
 </div>
 
 <div>
-  <canvas id="averageCharsPerMessageChart" width="400" height="400"></canvas>
+  <canvas id="averageCharsPerMessageChart"></canvas>
 </div>
 
 <div>
-  <canvas id="messagesWithTextCountsChart" width="400" height="400"></canvas>
+  <canvas id="messagesWithTextCountsChart"></canvas>
 </div>
 
-</body>
-</html>
-</script>
 </body>
 </html>
